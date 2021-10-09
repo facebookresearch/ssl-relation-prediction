@@ -1,4 +1,4 @@
-# Relation Prediction as an Auxiliary Training Objective for Knowledge Base Completion
+#  Relation Prediction as an Auxiliary Training Objective for Knowledge Base Completion
 
 This repo provides the code for the paper [Relation Prediction as an Auxiliary Training Objective for Improving Multi-Relational Graph Representations](https://openreview.net/pdf?id=Qa3uS3H7-Le). Incorporating relation prediction into the 1vsAll objective leads to a new self-supervised training objective for knowledge base completion (KBC), which brings significant performance improvement with 3-10 lines of code. Unleash the power of your KBC models with relation prediction objective!
 
