@@ -1,4 +1,6 @@
 # Relation Prediction as an Auxiliary Training Objective for Knowledge Base Completion
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/relation-prediction-as-an-auxiliary-training/link-prediction-on-aristo-v4)](https://paperswithcode.com/sota/link-prediction-on-aristo-v4?p=relation-prediction-as-an-auxiliary-training) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/relation-prediction-as-an-auxiliary-training/link-prediction-on-fb15k-237)](https://paperswithcode.com/sota/link-prediction-on-fb15k-237?p=relation-prediction-as-an-auxiliary-training) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/relation-prediction-as-an-auxiliary-training/link-prediction-on-wn18rr)](https://paperswithcode.com/sota/link-prediction-on-wn18rr?p=relation-prediction-as-an-auxiliary-training)
+
 
 This repo provides the code for the paper [Relation Prediction as an Auxiliary Training Objective for Improving Multi-Relational Graph Representations](https://openreview.net/pdf?id=Qa3uS3H7-Le). Incorporating relation prediction into the 1vsAll objective leads to a new self-supervised training objective for knowledge base completion (KBC), which brings significant performance improvement with 3-10 lines of code. Unleash the power of your KBC models with relation prediction objective!
 
