@@ -10,6 +10,7 @@ import torch
 from torch import nn
 
 import os
+from tqdm import tqdm
 from datasets import Dataset
 from models import CP, ComplEx, TransE, RESCAL, TuckER
 from regularizers import F2, N3
@@ -120,8 +121,9 @@ class KBCEngine(object):
         for e in range(init_epoch_id, self.max_epochs):
             wandb.run.summary['epoch_id'] = e
             self.model.train()
+            pbar = tqdm(total=exp_train_sampler.size)
             while exp_train_sampler.is_epoch(e): # iterate through all batchs inside an epoch
-                # 1 theta update
+                pbar.update(self.batch_size)
                 if self.world == 'LCWA':
                     input_batch_train = exp_train_sampler.batchify(self.batch_size,
                                                                     self.device)
@@ -178,7 +180,7 @@ class KBCEngine(object):
                 for split in self.dataset.splits:
                     res_s = self.dataset.eval(model=self.model, 
                                               split=split, 
-                                              n_queries=-1 if split != 'train' else 5000, # subsample 5000 triples for computing approximated training MRR
+                                              n_queries=-1 if split != 'train' else 1000, # subsample 5000 triples for computing approximated training MRR
                                               n_epochs=e)
                     res_all.append(avg_both(res_s[0], res_s[1]))
                     res_all_detailed.append(res_s[2])

@@ -13,9 +13,68 @@ from pathlib import Path
 
 import torch
 import numpy as np
+from ogb.linkproppred import Evaluator
 from models import KBCModel
 
 DATA_PATH = Path.cwd() / 'data'
+
+
+def subsample(triples, n):
+    """Subsample n entries from triples"""
+    perm = torch.randperm(len(triples))[:n]
+    q = triples[perm]
+    return q
+
+
+def invert(triples: np.array, n_rel: int, stack: bool=True, include_type=True):
+    """Given triples, return the version containing reciprocal triples, used in training
+    
+    Args: 
+        triples: h, r, t, h_neg, t_neg, h_type, t_type
+        n_rel: the number of original relations
+    """
+    copy = np.copy(triples)
+    tmp = np.copy(copy[:, 0])
+    copy[:, 0] = copy[:, 2]
+    copy[:, 2] = tmp
+    copy[:, 1] += n_rel
+    if include_type: # h,r,t,...h_type,t_type
+        tmp = np.copy(copy[:, -1]) 
+        copy[:, -1] = copy[:, -2]
+        copy[:, -2] = tmp
+    if stack:
+        return np.vstack((triples, copy))
+    else:
+        return copy
+
+
+def invert_torch(triples: torch.Tensor, n_rel: int, include_type=True):
+    """Given triples, return the version containing reciprocal triples, used in valid/test
+    
+    Args: 
+        triples: h, r, t, h_neg, t_neg, h_type, t_type
+        n_rel: the number of original relations
+    """
+    tmp = torch.clone(triples[:, 0])
+    triples[:, 0] = triples[:, 2]
+    triples[:, 2] = tmp
+    triples[:, 1] += n_rel
+    del tmp
+    if include_type:
+        tmp = torch.clone(triples[:, -1]) 
+        triples[:, -1] = triples[:, -2]
+        triples[:, -2] = tmp  
+        num_neg = (triples.shape[1] - 5) // 2
+    else:
+        num_neg = (triples.shape[1] - 3) // 2
+    print('Num neg per head/tail {}'.format(num_neg))
+    if num_neg > 0:
+        tmp = torch.clone(triples[:, 3:3+num_neg])
+        assert tmp.shape[1] == num_neg
+        triples[:, 3:3+num_neg] = triples[:, 3+num_neg:3+2*num_neg]
+        triples[:, 3+num_neg:3+2*num_neg] = tmp
+        del tmp
+    return triples
 
 
 class Sampler(object):
@@ -75,18 +134,34 @@ class Dataset(object):
 
         self.data = {}
         self.splits = ['train', 'valid', 'test']
+
         for f in self.splits:
-            in_file = open(str(self.root / (f + '.pickle')), 'rb')
-            self.data[f] = pickle.load(in_file)
+            p = str(self.root / (f + '.pickle'))
+            if os.path.isfile(p):
+                with open(p, 'rb') as in_file:
+                    self.data[f] = pickle.load(in_file)
+            else:
+                p = str(self.root / (f + '.npy'))
+                with open(p, 'rb') as in_file:
+                    self.data[f] = np.load(in_file)
 
         maxis = np.max(self.data['train'], axis=0)
         self.n_entities = int(max(maxis[0], maxis[2]) + 1)
         self.n_predicates = int(maxis[1] + 1)
+        self.include_type = self.name in ['ogbl-biokg'] # self.data['train'].shape[1] == 5
+        self.bsz_vt = 16 if self.name in ['ogbl-wikikg2'] else 1000
         if self.reciprocal:
             self.n_predicates *= 2
 
-        with open(str(self.root / f'to_skip.pickle'), 'rb') as inp_f:
-            self.to_skip = pickle.load(inp_f) 
+        if os.path.isfile(str(self.root / 'to_skip.pickle')):
+            print('Loading to_skip file ...')    
+            with open(str(self.root / f'to_skip.pickle'), 'rb') as inp_f:
+                self.to_skip = pickle.load(inp_f) # {'lhs': {(11, 3): [1, 3, 0, 4, 5, 19]}}
+
+        if os.path.isfile(str(self.root / 'meta_info.pickle')):
+            print('Loading meta_info file ...')
+            with open(str(self.root / f'meta_info.pickle'), 'rb') as inp_f:
+                self.meta_info = pickle.load(inp_f)  
 
         print('{} Dataset Stat: {}'.format(self.name, self.get_shape()))
 
@@ -105,27 +180,21 @@ class Dataset(object):
         return self.n_entities, self.n_predicates, self.n_entities
 
     def get_examples(self, split): 
-        """ original split without reciprocal
+        """ raw data without any processing
         """
         return self.data[split].astype('int64')
 
-    def get_split(self, split='train', reciprocal=True, unified_vocab=False):
+    def get_split(self, split='train', reciprocal=True):
         """ processed split with reciprocal & unified vocabuary
 
         Args:
             reciprocal: bool, whether to include reciprocal triples
-            unified_vocab: bool, whether to use a unified vocabulary for entity + predicate
-                           instead of separate vocabularies for entity and predicate
         """
+        data = self.data[split]
         if self.reciprocal:
-            copy = np.copy(self.data[split])
-            tmp = np.copy(copy[:, 0])
-            copy[:, 0] = copy[:, 2]
-            copy[:, 2] = tmp
-            copy[:, 1] += self.n_predicates // 2
-            data = np.vstack((self.data[split], copy))
-        else:
-            data = self.data[split]
+            assert split != 'test'
+            data = invert(data, self.n_predicates // 2, stack=True, 
+                          include_type=self.include_type)
         return data.astype('int64')
 
     def get_sampler(self, split):
@@ -139,56 +208,44 @@ class Dataset(object):
              model: KBCModel, split: str,
              n_queries: int = -1, 
              n_epochs: int = -1,
-             missing_eval: str = 'both', at: Tuple[int] = (1, 3, 10)):
-        query_type = missing_eval 
+             query_type: str = 'both', at: Tuple[int] = (1, 3, 10)):
         print('Evaluate the split {}'.format(split))
         test = self.get_examples(split)
         examples = torch.from_numpy(test).to(self.device)
-
         query_types = ['rhs', 'lhs'] if query_type == 'both' else [query_type]
-
         res, mean_reciprocal_rank, hits_at = {}, {}, {}
         for m in query_types:
+            print('Evaluating the {}'.format(m))
             q = examples.clone()
             if n_queries > 0:  # used to sample a subset of train, 
-                permutation = torch.randperm(len(examples))[:n_queries]
-                q = examples[permutation]
-            candidates = m
+                q = subsample(examples, n_queries)
+            candidate_pos = m
             if m == 'lhs': 
                 if self.reciprocal:
-                    tmp = torch.clone(q[:, 0])
-                    q[:, 0] = q[:, 2]
-                    q[:, 2] = tmp
-                    q[:, 1] += self.n_predicates // 2  # index for inverse predicate
-                    candidates = 'rhs' # after reversing, the candidates to score are at rhs
-            ranks, predicted = model.get_ranking(q, self.to_skip[m], batch_size=2000, candidates=candidates)
-            mean_reciprocal_rank[m] = torch.mean(1. / ranks).item()
-            hits_at[m] = torch.FloatTensor((list(map(
-                lambda x: torch.mean((ranks <= x).float()).item(),
-                at
-            ))))
-            res[m] = {'query': examples,  # triples to compute rhs raking among all the entities
-                      'rank': ranks,
-                      'predicted': predicted}
+                    q = invert_torch(q, self.n_predicates // 2, include_type=self.include_type)
+                    candidate_pos = 'rhs' # after reversing, the candidates to score are at rhs
+            if 'ogb' in self.name:
+                evaluator = Evaluator(name=self.name)
+                metrics = model.get_metric_ogb(q, 
+                                               batch_size=self.bsz_vt, 
+                                               query_type=candidate_pos, 
+                                               evaluator=evaluator)
+                mean_reciprocal_rank[m] = metrics['mrr_list']
+                hits_at[m] = torch.FloatTensor([metrics['hits@{}_list'.format(k)] for k in at]) 
+                res = None
+            else:
+                ranks, predicted = model.get_ranking(q, self.to_skip[m], 
+                                                     batch_size=self.bsz_vt, 
+                                                     candidates=candidate_pos)
+                mean_reciprocal_rank[m] = torch.mean(1. / ranks).item()
+                hits_at[m] = torch.FloatTensor((list(map(
+                    lambda x: torch.mean((ranks <= x).float()).item(),
+                    at
+                ))))
+                res[m] = {'query': examples,  # triples to compute rhs raking among all the entities
+                          'rank': ranks,
+                          'predicted': predicted}
+            del q
         return mean_reciprocal_rank, hits_at, res
 
 
-    def get_scope(self, split): #TODO: this can be read from to_skip & remove irrelevant splits
-        """get scope for each s-p-{} and {}-p-o"""
-        if split == 'train':
-            X = self.get_examples('train')
-        elif split == 'train+valid':
-            X = np.concatenate((self.get_examples('train'), self.get_examples('valid')),
-                               axis=0)
-        sp_to_o = dict()
-        po_to_s = dict()
-
-        for s, p, o in X:
-            if (s, p) not in sp_to_o:
-                sp_to_o[(s, p)] = []
-            if (p, o) not in po_to_s:
-                po_to_s[(p, o)] = []
-
-            sp_to_o[(s, p)] += [o]
-            po_to_s[(p, o)] += [s]
-        return sp_to_o, po_to_s

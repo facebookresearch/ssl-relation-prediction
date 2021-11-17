@@ -13,7 +13,8 @@ from engines import KBCEngine
 
 
 datasets = ['FB15K-237', 'WN18RR', 'aristo-v4',
-            'UMLS', 'KINSHIP', 'NATIONS']
+            'UMLS', 'KINSHIP', 'NATIONS',
+            'ogbl-biokg', 'ogbl-wikikg2']
 
 parser = argparse.ArgumentParser(
     description="Relation Prediction as an Auxiliary Training Objective"
