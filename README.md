@@ -8,9 +8,9 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/relation-prediction-as-an-auxiliary-training/link-prediction-on-fb15k-237)](https://paperswithcode.com/sota/link-prediction-on-fb15k-237?p=relation-prediction-as-an-auxiliary-training) 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/relation-prediction-as-an-auxiliary-training/link-prediction-on-wn18rr)](https://paperswithcode.com/sota/link-prediction-on-wn18rr?p=relation-prediction-as-an-auxiliary-training)
 
-This repo provides the code for the paper [Relation Prediction as an Auxiliary Training Objective for Improving Multi-Relational Graph Representations](https://openreview.net/pdf?id=Qa3uS3H7-Le). Incorporating relation prediction into the 1vsAll objective leads to a new self-supervised training objective for knowledge base completion (KBC), which brings significant performance improvement (up to 9.9% in Hits@1) with 3-10 extra lines of code. Unleash the power of your KBC models with relation prediction objective! 
+This repo contains the code accompanying the paper: [“Relation Prediction as an Auxiliary Training Objective for Improving Multi-Relational Graph Representations”](https://openreview.net/pdf?id=Qa3uS3H7-Le). We found that incorporating relation prediction into the 1vsAll objective yields a new self-supervised training objective for knowledge base completion (KBC), which results in significant performance improvement (up to 9.9% in Hits@1) by adding as little as 3–10 lines of code. Unleash the true power of your KBC models with the relation prediction objective! 
 
-The codebase also comes with SoTA results on the latest KBC datasets. Echoing with [previous research](https://openreview.net/forum?id=BkxSmlBFvr), we find that the traditional factorisation-based models, e.g. ComplEx, DistMult and RESCAL, can actually be very powerful if we train them appropraitely. In most cases, we find the 1vsAll + Relation Prediction to be very effective and take much less tweaking efforts than getting sophisticated architectures to work.
+The codebase also comes with SoTA results on several KBC datasets. Echoing [previous research](https://openreview.net/forum?id=BkxSmlBFvr), we find that traditional factorisation-based models, e.g. ComplEx, DistMult and RESCAL, can outperform more recently proposed models when trained appropraitely. For most cases, we find the 1vsAll + Relation Prediction objective to be very effective and require less tweaking than more sophisticated architectures.
 
 ![](./doc/img/ssl_rp_repo.png)
 
@@ -37,9 +37,9 @@ The codebase also comes with SoTA results on the latest KBC datasets. Echoing wi
 [:white_check_mark: Licence](https://github.com/facebookresearch/ssl-relation-prediction#license)
 
 ## :zap: Link Prediction Results
-We try to include as many results as possible on latest knowledge graph completion datasets and will release the hyper-parameters to foster easy reproduction. Feel free to create an issue if you want to suggest a new dataset for us to run.
+We attempt to include as many results as possible for recent knowledge graph completion datasets and will release the hyper-parameters to foster easy reproduction. Feel free to create an issue if you want to suggest additional datasets for us to include.
 
-Currently, we have results on OGB link property prediction dataset [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg), [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2), [codex](https://arxiv.org/pdf/2009.07810.pdf), [Aristo-v4](https://allenai.org/data/tuple-kb), [FB15K237](https://www.microsoft.com/en-us/download/details.aspx?id=52312), and [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz). **All training was done on a single 16GB GPU except on ogbl-wikikg2 which run on a 32GB GPU**. 
+Currently, we have results on the OGB link property prediction dataset [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg), [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2), [codex](https://arxiv.org/pdf/2009.07810.pdf), [Aristo-v4](https://allenai.org/data/tuple-kb), [FB15K237](https://www.microsoft.com/en-us/download/details.aspx?id=52312), and [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz). **All training was done on a single 16GB GPU except for ogbl-wikikg2 which was run on a 32GB GPU**. 
 
 ### ogbl-wikikg2 
 | Model                  | Params | Using RP? | MRR        | Hits@1     | Hits@3     | Hits@10    |
@@ -53,7 +53,8 @@ Currently, we have results on OGB link property prediction dataset [ogbl-biokg](
 | ComplEx (100dim, ours) | 500M   | No        | 0.6458     | 0.5750     | 0.6761     | 0.7896     |
 | ComplEx (100dim, ours) | 500M   | Yes       | **0.6509** | **0.5814** | **0.6800** | **0.7923** |
 
-Note that the training of 50/100 dim takes about 3 days and longer training time will lead to even better results. We currently use only one 32GB GPU. Acceleration on multiple GPUS will be considered in the future.
+Note that the training of 50/100 dim takes about 3 days and that additional training time will likely lead to better results. We currently use only one 32GB GPU. Acceleration on multiple GPUs will be considered in the future.
+
 ### ogbl-biokg 
 
 | Model          | Params | Using RP? | MRR        | Hits@1     | Hits@3     | Hits@10    |
@@ -116,7 +117,7 @@ Note that the training of 50/100 dim takes about 3 days and longer training time
 
 ## How to Use This Repo
 ### How to Use This Repo for OGB Datasets
-Go to the `preprocess_datasets.py` and specify the dataset you want to run on, either
+Edit `preprocess_datasets.py` and specify the dataset you want to run on, either
 ```
     datasets = ['ogbl-wikikg2']
 ```
@@ -124,12 +125,12 @@ or
 ```
 datasets = ['ogbl-biokg']
 ```
-Then run the `preprocess_datasets.py` as follows
+Then run `preprocess_datasets.py` as follows
 ```
 mkdir data/
 python preprocess_datasets.py
 ```
-After preprocessing, the model can be trained by running `main.py`. For example, to train a ComplEx on ogbl-biokg, use the following command
+After preprocessing is complete, a model can be trained by running `main.py`. For example, to train ComplEx on ogbl-biokg, use the following command
 ```
 python --dataset ogbl-biokg --model ComplEx --score_rel True --rank 1000 --learning_rate 1e-1 --batch_size 500 --optimizer Adagrad --regularizer N3 --lmbda 0.01 --w_rel 0.25 --valid 1 
 ```
@@ -137,7 +138,7 @@ and to train a ComplEx on ogbl-wikikg2, use the following command on a GPU with 
 ```
 python --dataset ogbl-wikikg2 --model ComplEx --score_rel True --rank 50 --learning_rate 1e-1 --batch_size 250 --optimizer Adagrad --regularizer N3 --lmbda 0.1 --w_rel 0.125 --valid 1 
 ```
-You should get the training curves similar as the figures below.
+You should obtain training curves similar as the figures below.
 
 ogbl-biokg                     |  ogbl-wikikg2
 :-----------------------------:|:------------------------------:
@@ -146,34 +147,34 @@ ogbl-biokg                     |  ogbl-wikikg2
 
 ### How to Use This Repo for Conventional KBC Datasets
 #### Prepare Datasets
-Download datasets and put them under `src_data`. The folder should look like this TODO: tree command output
+Download datasets and place them under `src_data`. The folder should look like this TODO: tree command output
 ```
 src_data/FB15K-237/train # Tab separated file
 src_data/FB15K-237/valid # Tab separated file
 src_data/FB15K-237/test # Tab separated file
 ```
 
-As an option, you can download together UMLS, Nations, Kinship, FB15K-237, WN18RR from [here](https://github.com/villmow/datasets_knowledge_embedding) and aristo-v4 from [here](https://allenai.org/data/tuple-kb). You can also download some datasets separately on [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz) and [FB15K-237](https://www.microsoft.com/en-us/download/details.aspx?id=52312). 
+For example, you can download together UMLS, Nations, Kinship, FB15K-237, WN18RR from [here](https://github.com/villmow/datasets_knowledge_embedding) and aristo-v4 from [here](https://allenai.org/data/tuple-kb). You can also download some datasets separately on [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz) and [FB15K-237](https://www.microsoft.com/en-us/download/details.aspx?id=52312). 
 
-After downloading the datasets, the preprocess is very quick within several minutes.
+After downloading the datasets, the preprocessing is quick and can be completed within a few minutes.
 ```
 mkdir data/
 python preprocess_datasets.py
 ```
 
 #### Train the model 
-Use option `score_rel` to turn on the auxiliary objective of relation prediction. Use option `w_rel` to set the weight of the relation prediction objective.
+Use the option `score_rel` to enable the auxiliary relation prediction objective. Use the option `w_rel` to set the weight of the relation prediction objective.
 
-For example, the following command trains a ComplEx model **with** relation prediction on FB15K-237
+For example, the following command trains a ComplEx model **with** with the auxiliary relation prediction objective on FB15K-237
 ```
 python main.py --dataset FB15K-237 --score_rel True --model ComplEx --rank 1000 --learning_rate 0.1 --batch_size 1000 --lmbda 0.05 --w_rel 4 --max_epochs 100
 ```
-And the following command trains a ComplEx model **without** relation prediction on FB15K-237
+And the following command trains a ComplEx model **without** the auxiliary relation prediction objective on FB15K-237
 ```
 python main.py --dataset FB15K-237 --score_rel False --model ComplEx --rank 1000 --learning_rate 0.1 --batch_size 1000 --lmbda 0.05 --w_rel 4 --max_epochs 100
 ```
 
-## Dependency
+## Dependencies
 - pytorch
 - wandb
 
