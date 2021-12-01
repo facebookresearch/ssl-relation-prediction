@@ -36,8 +36,11 @@ The codebase also comes with SoTA results on several KBC datasets. Echoing [prev
 
 [:white_check_mark: Licence](https://github.com/facebookresearch/ssl-relation-prediction#license)
 
+## News
+- 01/12/2021 Hyper-parameters on CoDEx, ogbl-biokg and ogbl-wikikgv2 are released [here](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters)
+
 ## :zap: Link Prediction Results
-We attempt to include as many results as possible for recent knowledge graph completion datasets and will release the hyper-parameters to foster easy reproduction. Feel free to create an issue if you want to suggest additional datasets for us to include.
+We attempt to include as many results as possible for recent knowledge graph completion datasets and release the [hyper-parameters](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters) to foster easy reproduction. Feel free to create an issue if you want to suggest additional datasets for us to include.
 
 Currently, we have results on the OGB link property prediction dataset [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg), [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2), [codex](https://arxiv.org/pdf/2009.07810.pdf), [Aristo-v4](https://allenai.org/data/tuple-kb), [FB15K237](https://www.microsoft.com/en-us/download/details.aspx?id=52312), and [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz). **All training was done on a single 16GB GPU except for ogbl-wikikg2 which was run on a 32GB GPU**. 
 
@@ -68,16 +71,16 @@ Note that the training of 50/100 dim takes about 3 days and that additional trai
 | Model          | Using RP? | MRR       | Hits@1    | Hits@3    | Hits@10   |
 |:-------------- | --------- |:--------- |:--------- | --------- |:--------- |
 | ComplEx [^1]   | No        | 0.465     | 0.372     | 0.504     | 0.646     |
-| ComplEx (ours) | No        | 0.472     | **0.378** | 0.508     | 0.658     |
-| ComplEx (ours) | Yes       | **0.473** | 0.375     | **0.514** | **0.663** |
+| ComplEx (1000dim, ours) | No        | 0.472     | **0.378** | 0.508     | 0.658     |
+| ComplEx (1000dim, ours) | Yes       | **0.473** | 0.375     | **0.514** | **0.663** |
 
 ### CoDEx-M
 
 | Model        | Using RP? | MRR       | Hits@1    | Hits@3    | Hits@10   |
 |:------------ | --------- |:--------- |:--------- | --------- |:--------- |
 | ComplEx [^1] | No        | 0.337     | 0.262     | 0.370     | 0.476     |
-| ComplEx      | No        | 0.351     | 0.276     | 0.385     | **0.492** |
-| ComplEx      | Yes       | **0.352** | **0.277** | **0.386** | 0.490     |
+| ComplEx (1000dim, ours)     | No        | 0.351     | 0.276     | 0.385     | **0.492** |
+| ComplEx (1000dim, ours)     | Yes       | **0.352** | **0.277** | **0.386** | 0.490     |
 
 
 ### CoDEx-L
@@ -85,8 +88,8 @@ Note that the training of 50/100 dim takes about 3 days and that additional trai
 | Model        | Using RP? | MRR       | Hits@1    | Hits@3    | Hits@10   |
 |:------------ | --------- |:--------- |:--------- | --------- |:--------- |
 | ComplEx [^1] | No        | 0.294     | 0.237     | 0.318     | 0.400     |
-| ComplEx      | No        | 0.342     | 0.275     | 0.374     | 0.470     |
-| ComplEx      | Yes       | **0.345** | **0.277** | **0.377** | **0.473** |
+| ComplEx (1000dim, ours)     | No        | 0.342     | 0.275     | 0.374     | 0.470     |
+| ComplEx (1000dim, ours)     | Yes       | **0.345** | **0.277** | **0.377** | **0.473** |
 
 ### WN18RR
 
