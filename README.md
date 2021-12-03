@@ -148,23 +148,22 @@ ogbl-biokg                     |  ogbl-wikikg2
 ![](./doc/img/ogbl-biokg.png)  | ![](./doc/img/ogbl-wikikg2.png)
 
 
-### How to Use This Repo for Conventional KBC Datasets
+### How to Use This Repo for Conventional KBC Datasets or Customized Datasets
 #### Prepare Datasets
-Download datasets and place them under `src_data`. The folder should look like this TODO: tree command output
+- Download the datasets and place them under `src_data`. 
+- Name the file containing training triplets as `train`, validation triplets as `valid` and test triplets as `test`. The folder should look like this
 ```
-src_data/FB15K-237/train # Tab separated file
-src_data/FB15K-237/valid # Tab separated file
-src_data/FB15K-237/test # Tab separated file
+src_data/FB15K-237/train # Tab separated file, each row should be like `head    relation    tail`
+src_data/FB15K-237/valid # Tab separated file, each row should be like `head    relation    tail`
+src_data/FB15K-237/test # Tab separated file, each row should be like `head    relation    tail`
 ```
-
-For example, you can download together UMLS, Nations, Kinship, FB15K-237, WN18RR from [here](https://github.com/villmow/datasets_knowledge_embedding) and aristo-v4 from [here](https://allenai.org/data/tuple-kb). You can also download some datasets separately on [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz) and [FB15K-237](https://www.microsoft.com/en-us/download/details.aspx?id=52312). 
-
-After downloading the datasets, the preprocessing is quick and can be completed within a few minutes.
+- After downloading the datasets, the preprocessing is quick and can be completed within a few minutes.
 ```
 mkdir data/
 python preprocess_datasets.py
 ```
 
+You can download together UMLS, Nations, Kinship, FB15K-237, WN18RR from [here](https://github.com/villmow/datasets_knowledge_embedding) and aristo-v4 from [here](https://allenai.org/data/tuple-kb). You can also download some datasets separately on [WN18RR](https://github.com/TimDettmers/ConvE/blob/master/WN18RR.tar.gz) and [FB15K-237](https://www.microsoft.com/en-us/download/details.aspx?id=52312). 
 #### Train the model 
 Use the option `score_rel` to enable the auxiliary relation prediction objective. Use the option `w_rel` to set the weight of the relation prediction objective.
 
