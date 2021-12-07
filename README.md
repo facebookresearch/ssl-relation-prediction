@@ -122,7 +122,7 @@ Note that the training of 50/100 dim takes about 3 days and that additional trai
 ### How to Use This Repo for OGB Datasets
 Edit `preprocess_datasets.py` and specify the dataset you want to run on, either
 ```
-    datasets = ['ogbl-wikikg2']
+datasets = ['ogbl-wikikg2']
 ```
 or
 ```
@@ -157,7 +157,11 @@ src_data/FB15K-237/train # Tab separated file, each row should be like `head    
 src_data/FB15K-237/valid # Tab separated file, each row should be like `head    relation    tail`
 src_data/FB15K-237/test # Tab separated file, each row should be like `head    relation    tail`
 ```
-- After downloading the datasets, the preprocessing is quick and can be completed within a few minutes.
+- After downloading the datasets, the preprocessing is quick and can be completed within a few minutes. First, edit `preprocess_datasets.py` and specify the dataset you want to run on, e.g.
+```
+datasets = ['custom_graph']
+```
+then run
 ```
 mkdir data/
 python preprocess_datasets.py

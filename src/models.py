@@ -10,7 +10,8 @@ import torch
 from torch import nn
 
 
-def filtering(scores, these_queries, filters, n_rel, n_ent, chunk_size):
+def filtering(scores, these_queries, filters, n_rel, n_ent, 
+              c_begin, chunk_size, query_type):
     # set filtered and true scores to -1e6 to be ignored
     # take care that scores are chunked
     for i, query in enumerate(these_queries):
@@ -19,11 +20,13 @@ def filtering(scores, these_queries, filters, n_rel, n_ent, chunk_size):
         if query_type == 'rhs':
             if existing_s:
                 filter_out = filters[(query[0].item(), query[1].item())]
-                filter_out += [queries[b_begin + i, 2].item()]
+                # filter_out += [queries[b_begin + i, 2].item()]
+                filter_out += [query[2].item()]
         if query_type == 'lhs':
             if existing_r:
                 filter_out = filters[(query[2].item(), query[1].item() + n_rel)]
-                filter_out += [queries[b_begin + i, 0].item()]                             
+                # filter_out += [queries[b_begin + i, 0].item()]    
+                filter_out += [query[0].item()]                         
         if query_type == 'rel':
             pass
         if chunk_size < n_ent:
@@ -99,7 +102,8 @@ class KBCModel(nn.Module):
                     if filters is not None:
                         scores = filtering(scores, these_queries, filters, 
                                            n_rel=self.sizes[1], n_ent=self.sizes[2], 
-                                           chunk_size=chunk_size)
+                                           c_begin=c_begin, chunk_size=chunk_size,
+                                           query_type=query_type)
                     ranks[b_begin:b_begin + batch_size] += torch.sum(
                         (scores >= targets).float(), dim=1
                     ).cpu()
@@ -150,6 +154,7 @@ class KBCModel(nn.Module):
         for metric in test_logs:
             metrics[metric] = torch.cat(test_logs[metric]).mean().item()
         return metrics    
+
 
 class TransE(KBCModel):
     def __init__(self, sizes, rank, init_size):

@@ -216,6 +216,6 @@ class KBCEngine(object):
                     print('0 embedding weight, diverged!')
                     break
         self.model.eval()
-        results = self.dataset.eval(self.model, 'test', -1)
-        print("\n\nTEST : ", results)
+        mrrs, hits, _ = self.dataset.eval(self.model, 'test', -1)
+        print("\n\nTEST : MRR {} Hits {}".format(mrrs, hits))
         wandb.run.summary['is_done'] = True

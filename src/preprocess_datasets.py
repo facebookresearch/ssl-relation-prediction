@@ -237,6 +237,7 @@ if __name__ == "__main__":
     # datasets = ['FB15K-237']
     datasets = ['ogbl-wikikg2']
     datasets = ['ogbl-biokg']
+    datasets = ['custom_graph']
     for d in datasets:
         print("Preparing dataset {}".format(d))
         try:
