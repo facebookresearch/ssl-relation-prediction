@@ -25,6 +25,8 @@ The codebase also comes with SoTA results on several KBC datasets. Echoing [prev
 - [FB15K-237](https://github.com/facebookresearch/ssl-relation-prediction#fb15k237)
 - [Aristo-v4](https://github.com/facebookresearch/ssl-relation-prediction#aristo-v4)
 
+[:jigsaw: Pretrained Embeddings](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
+
 [:compass: How to Use This Repo](https://github.com/facebookresearch/ssl-relation-prediction#how-to-use-this-repo)
 - [How to Use This Repo for OGB Datasets](https://github.com/facebookresearch/ssl-relation-prediction#how-to-use-this-repo-for-ogb-datasets)
 - [How to Use This Repo for Conventional KBC Datasets](https://github.com/facebookresearch/ssl-relation-prediction#how-to-use-this-repo-for-conventional-kbc-datasets)
@@ -37,6 +39,7 @@ The codebase also comes with SoTA results on several KBC datasets. Echoing [prev
 [:white_check_mark: Licence](https://github.com/facebookresearch/ssl-relation-prediction#license)
 
 ## News
+- 16/12/2021 Pretrained embeddings on FB15K-237/WN18RR/CoDEx-M/CoDEx-S are released. Check out them [here](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
 - 01/12/2021 Hyper-parameters on CoDEx, ogbl-biokg and ogbl-wikikgv2 are released [here](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters)
 
 ## :zap: Link Prediction Results
@@ -117,6 +120,16 @@ Note that the training of 50/100 dim takes about 3 days and that additional trai
 [^2]: The results are taken from [OGB Link Property Prediction Leaderboard on ogbl-biokg](https://ogb.stanford.edu/docs/leader_linkprop/#ogbl-biokg).
 
 [^3]: The results are taken from [OGB Link Property Prediction Leaderboard on ogbl-wikikg2](https://ogb.stanford.edu/docs/leader_linkprop/#ogbl-wikikg2).
+
+## Pretrained Embeddings
+| Dataset   | #Pred (including reciprocal predicates) | #Ent   | Model                  | Hyper-parameters                                                                                                                    | Download Link                                                                       | #Params | File Size |
+|:--------- |:-------------------------------------- |:------ |:---------------------- |:----------------------------------------------------------------------------------------------------------------------------------- |:----------------------------------------------------------------------------------- |:------- |:--------- |
+| FB15K-237 | 474                                    | 14,541 | ComplEx(1000dim, ours) | [HPs](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters/fb15k237.md#best-run-for-fb15k237) | [Link](https://dl.fbaipublicfiles.com/ssl-relation-prediction/complex/fb15k237.zip) | 30M     | 115MB     |
+| WN18RR    | 22                                     | 40,943 | ComplEx(1000dim, ours) | [HPs](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters/wn18rr.md#best-run-for-wn18rr)     | [Link](https://dl.fbaipublicfiles.com/ssl-relation-prediction/complex/wn18rr.zip)   | 82M     | 313M      |
+| CoDEx-M   | 102                                    | 17,050 | ComplEx(1000dim, ours) | [HPs](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters/codex.md#best-run-for-codex-m)     | [Link](https://dl.fbaipublicfiles.com/ssl-relation-prediction/complex/codex-m.zip)  | 34M     | 131M      |
+| CoDEx-S   | 84                                     | 2,034  | ComplEx(1000dim, ours) | [HPs](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters/codex.md#best-run-for-codex-s)     | [Link](https://dl.fbaipublicfiles.com/ssl-relation-prediction/complex/codex-s.zip)  | 4M      | 17M       |
+
+Note that we also learn the embeddings for reciprocal predicates as they are reported to be helpful ([Dettmers et al., 2018](https://arxiv.org/abs/1707.01476), [Lacroix et al., 2018](https://arxiv.org/pdf/1806.07297.pdf)).
 
 ## How to Use This Repo
 ### How to Use This Repo for OGB Datasets
