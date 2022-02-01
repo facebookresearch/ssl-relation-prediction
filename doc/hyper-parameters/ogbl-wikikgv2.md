@@ -37,6 +37,26 @@ lmbda=[0.1],
 w_rel=[0.125], # weighting of the relation prediction objective
 score_rel=[True], # turn on the relation prediction objective
 ```
+
+### Trained Embeddings for the Best Run
+You can download the trained embeddings for the best run from [here](https://dl.fbaipublicfiles.com/ssl-relation-prediction/complex/ogbl-wikikg2.zip). Unzip the model by
+```
+unzip ogbl-wikikg2.zip
+```
+After unzipping you will get 3 files: `best_valid.model` (Pytorch model file), `ent_id` (Enitity IDs)and `rel_id` (Relation IDs). You can load the embeddings by running the following python script
+```
+import torch
+state_dict = torch.load('best_valid.model', map_location='cpu') # load on cpu
+entity_embedding = state_dict[''embeddings.0.weight'] # get entity embeddings
+relation_embedding = state_dict[''embeddings.1.weight'] # get relation embeddings
+``` 
+Or you can load the `ComplEx` model using our codebase by running the following python scripts under `src`
+```
+from models import ComplEx
+model = ComplEx(sizes=[2500604,1070,2500604], rank=50, init_size=1e-3)
+state_dict = torch.load('best_valid.model', map_location='cpu') # load on cpu
+model.load_state_dict(state_dict)
+```
 ## Best Run for ogbl-wikikgv2, Rank=100
 ```python
 learning_rate=[1e-1],
