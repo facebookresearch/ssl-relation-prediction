@@ -43,8 +43,8 @@ The codebase also comes with SoTA results on several KBC datasets. Echoing [prev
 [:white_check_mark: Licence](https://github.com/facebookresearch/ssl-relation-prediction#license)
 
 ## News
-- 01/02/2021 Pretrained embeddings on obgl-biokg/ogbl-wikikg2 are released. Check out them [here](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
-- 16/12/2021 Pretrained embeddings on FB15K-237/WN18RR/CoDEx-M/CoDEx-S are released. Check out them [here](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
+- 01/02/2021 Pretrained ComplEx embeddings on obgl-biokg/ogbl-wikikg2 are released. Check out them [here](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
+- 16/12/2021 Pretrained ComplEx embeddings on FB15K-237/WN18RR/CoDEx-M/CoDEx-S are released. Check out them [here](https://github.com/facebookresearch/ssl-relation-prediction#pretrained-embeddings)
 - 01/12/2021 Hyper-parameters on CoDEx, ogbl-biokg and ogbl-wikikgv2 are released [here](https://github.com/facebookresearch/ssl-relation-prediction/blob/main/doc/hyper-parameters)
 
 ## :zap: Link Prediction Results
