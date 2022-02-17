@@ -193,7 +193,7 @@ class KBCEngine(object):
                     print("\t {}: {}".format(split.upper(), res[split]))
                     wandb.log({'step_wise/{}/mrr'.format(split): res[split]['MRR']}, step=step_idx)
                     wandb.log({'step_wise/{}/hits@1'.format(split): res[split]['hits@[1,3,10]'][0]}, step=step_idx)
-
+                split = 'meta_valid' if 'meta_valid' in self.dataset.splits else 'valid'
                 if res[split]['MRR'] > best_valid_mrr:
                     best_valid_mrr = res[split]['MRR']
                     self.model.checkpoint(model_cache_path=self.model_cache_path, epoch_id='best_valid')
